@@ -1,4 +1,4 @@
-export const getAllNotes = (req, res) => {
+export const getAllNotes = async (req, res) => {
   res.status(200).send("You just fetched the notes");
 };
 
