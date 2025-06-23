@@ -1,8 +1,7 @@
 import mongoose from "mongoose";
 
-//1-create a schema
-//2- create a model based on the schema
-
+// 1st step: You need to create a schema
+// 2nd step: You would create a model based off of that schema
 
 const noteSchema = new mongoose.Schema(
   {
@@ -15,10 +14,9 @@ const noteSchema = new mongoose.Schema(
       required: true,
     },
   },
-  { timestamps: true }
+  { timestamps: true } // createdAt, updatedAt
 );
 
-
-const Note=mongoose.model("Note",noteSchema);
+const Note = mongoose.model("Note", noteSchema);
 
 export default Note;
