@@ -22,7 +22,7 @@ router.get(
 
 router.get(
   "/google/callback",
-  passport.authenticate("google", { failureRedirect: "/login" }),
+  passport.authenticate("google", { failureRedirect:"/login" }),
   (req, res) => {
     try {
       console.log("OAuth callback successful, user:", req.user);
@@ -35,7 +35,7 @@ router.get(
       console.log("JWT token generated, redirecting to frontend");
 
       // Redirect to frontend with token
-      res.redirect(`${process.env.FRONTEND_URL}?token=${token}`);
+      res.redirect(`${process.env.FRONTEND_URL}/?token=${token}`);
     } catch (error) {
       console.error("Error in OAuth callback:", error);
       res.status(500).json({ message: "Authentication failed" });

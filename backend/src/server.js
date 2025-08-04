@@ -27,6 +27,15 @@ if (process.env.NODE_ENV !== "production") {
   );
 }
 
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL, // The URL of your frontend application
+    credentials: true, // This allows the browser to send cookies and authorization headers
+    methods: ["GET", "POST", "PUT", "DELETE"], // Allowed HTTP methods
+  })
+);
+
+
 app.use(express.json()); // this middleware will parse JSON bodies: req.body
 app.use(rateLimiter);
 

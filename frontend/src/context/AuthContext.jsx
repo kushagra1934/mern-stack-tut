@@ -1,12 +1,12 @@
 // src/context/AuthContext.jsx (CORRECTED)
+
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom"; // Import useNavigate
+import { useNavigate } from "react-router-dom";
 import api from "../lib/axios.js";
 
 const AuthContext = createContext();
 
 export const useAuth = () => {
-  // ... (no changes here)
   const context = useContext(AuthContext);
   if (!context) {
     throw new Error("useAuth must be used within an AuthProvider");
@@ -17,36 +17,34 @@ export const useAuth = () => {
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  // Initialize token from localStorage. We'll check the URL next.
   const [token, setToken] = useState(localStorage.getItem("token"));
   const navigate = useNavigate();
 
+  // Effect 1: THIS IS THE NEW LOGIC TO FIX THE RACE CONDITION
+  // It runs ONCE on app load to check for a token in the URL.
   useEffect(() => {
-    // First, check for a token in the URL from the OAuth redirect.
     const urlParams = new URLSearchParams(window.location.search);
     const urlToken = urlParams.get("token");
 
     if (urlToken) {
-      // If a token is in the URL, store it and clean the URL.
+      console.log("Found token in URL, setting it now.");
+      // Set the token in state and local storage
+      setToken(urlToken);
       localStorage.setItem("token", urlToken);
-      setToken(urlToken); // Set the token state
-      // Clean up the URL so the token isn't visible
+      // Clean the token from the URL for security
       window.history.replaceState({}, document.title, window.location.pathname);
     }
-  }, []); // Run this check only once when the app loads.
+  }, []); // Empty array ensures this runs only once.
 
+  // Effect 2: This validates the token whenever it changes.
   useEffect(() => {
-    // This effect runs whenever the 'token' state changes.
     const checkAuth = async () => {
+      setLoading(true); // Start loading when we check auth
       if (token) {
         try {
           api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
           const response = await api.get("/auth/me");
           setUser(response.data.user);
-          // Optional: After successful authentication, navigate to home.
-          if (window.location.pathname === "/login") {
-            navigate("/");
-          }
         } catch (error) {
           console.error("Auth check failed:", error);
           localStorage.removeItem("token");
@@ -55,20 +53,20 @@ export const AuthProvider = ({ children }) => {
           delete api.defaults.headers.common["Authorization"];
         }
       }
-      setLoading(false);
+      setLoading(false); // Stop loading after the check is complete
     };
 
     checkAuth();
-  }, [token, navigate]);
+  }, [token]); // This effect now correctly depends on the token.
 
   const login = (newToken) => {
     setToken(newToken);
     localStorage.setItem("token", newToken);
     api.defaults.headers.common["Authorization"] = `Bearer ${newToken}`;
+    
   };
 
   const logout = () => {
-    // ... (no changes here)
     setUser(null);
     setToken(null);
     localStorage.removeItem("token");
@@ -78,6 +76,7 @@ export const AuthProvider = ({ children }) => {
 
   const value = {
     user,
+    token,
     loading,
     login,
     logout,
