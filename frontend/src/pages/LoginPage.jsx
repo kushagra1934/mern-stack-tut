@@ -16,7 +16,7 @@ const LoginPage = () => {
   }
   // This is now the only function needed here.
   const handleGoogleLogin = () => {
-    window.location.href = "http://localhost:3000/api/auth/google";
+    window.location.href = "https://note-io.onrender.com/api/auth/google";
   };
 
   // THE useEffect LOGIC HAS BEEN COMPLETELY REMOVED FROM THIS FILE.
